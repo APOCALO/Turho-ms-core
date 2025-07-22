@@ -6,7 +6,13 @@ namespace Domain.ValueObjects
     {
         public string Value { get; init; }
 
-        private PhoneNumber(string value) => Value = value;
+        // Constructor Privado para qué EntityFramework tenga mejor rendimiento
+        private PhoneNumber()
+        {
+            
+        }
+
+        public PhoneNumber(string value) => Value = value;
 
         public static PhoneNumber? Create(string value, string countryCode)
         {

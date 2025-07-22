@@ -30,7 +30,7 @@ namespace Domain.Reservations
         }
 
         // Constructor Privado para qué EntityFramework tenga mejor rendimiento
-        public Reservation()
+        private Reservation()
         {
 
         }

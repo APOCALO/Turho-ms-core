@@ -13,6 +13,12 @@
 
         private static readonly List<string> StreetTypesCOL = new List<string> { "carrera", "calle", "diagonal", "avenida" };
 
+        // Constructor Privado para qué EntityFramework tenga mejor rendimiento
+        private Address()
+        {
+            
+        }
+
         public Address(string country, string streetType, string department, string city, string streetNumber, string crossStreetNumber, string propertyNumber, string? zipCode)
         {
             this.Country = country;
