@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class IntialMigration : Migration
+    public partial class Initialmigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -42,13 +42,9 @@ namespace Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     ReservationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
-                    CustomerId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CustomerName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    CustomerLastName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    CustomerEmail = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
-                    CustomerPhoneNumber = table.Column<string>(type: "character varying(15)", maxLength: 15, nullable: false),
                     ServiceStartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    ServiceEndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    ServiceEndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CustomerId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {

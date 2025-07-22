@@ -29,28 +29,6 @@ namespace Infrastructure.Persistence.Configurations
                 .WithMany()
                 .HasForeignKey(c => c.CustomerId);
 
-            builder.Property(c => c.CustomerName)
-                .HasMaxLength(50)
-                .IsRequired();
-
-            builder.Property(c => c.CustomerLastName)
-                .HasMaxLength(50)
-                .IsRequired();
-
-            // Ignore FullName (calculated property)
-            builder.Ignore(c => c.CustomerFullName);
-
-            builder.Property(c => c.CustomerEmail)
-                .HasMaxLength(250)
-                .IsRequired();
-
-            builder.Property(c => c.CustomerPhoneNumber)
-                .HasConversion(
-                    phoneNumberExample => phoneNumberExample.Value,
-                    value => PhoneNumber.CreateWithoutCountryCode(value))
-                .HasMaxLength(15)
-                .IsRequired();
-
         }
     }
 }

@@ -6,7 +6,18 @@ namespace Application.Reservations.Commands.CreateReservation
 {
     public record CreateReservationCommand : BaseResponse<Unit>
     {
-        public CreateReservationCommand(Guid id, DateTime reservationDate, ReservationStatusEnum status, Guid customerId, string customerName, string customerLastName, string customerEmail, string customerPhoneNumber, string countryCode, DateTime serviceStartDate, DateTime serviceEndDate)
+        public CreateReservationCommand(
+            Guid id, 
+            DateTime reservationDate, 
+            ReservationStatusEnum status, 
+            Guid customerId, 
+            string customerName, 
+            string customerLastName, 
+            string customerEmail, 
+            string customerPhoneNumber, 
+            string countryCode, 
+            DateTime serviceStartDate, 
+            DateTime serviceEndDate)
         {
             Id = id;
             ReservationDate = reservationDate;

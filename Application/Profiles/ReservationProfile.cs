@@ -3,7 +3,6 @@ using Application.Reservations.Commands.UpdateReservation;
 using Application.Reservations.DTOs;
 using AutoMapper;
 using Domain.Reservations;
-using Domain.ValueObjects;
 
 namespace Application.Profiles
 {
@@ -12,13 +11,11 @@ namespace Application.Profiles
         public ReservationProfile()
         {
             // Mapeo de CreateReservationCommand a Reservation
-            CreateMap<CreateReservationCommand, Reservation>()
-                .ForMember(dest => dest.CustomerPhoneNumber, opt => opt.MapFrom(src => PhoneNumber.Create(src.CustomerPhoneNumber, src.CountryCode)));
+            CreateMap<CreateReservationCommand, Reservation>();
 
             // Mapeo de Reservation a ReservationResponseDTO
             CreateMap<Reservation, ReservationResponseDTO>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.Value))
-                .ForMember(dest => dest.CustomerPhoneNumber, opt => opt.MapFrom(src => src.CustomerPhoneNumber.Value))
                 .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.CustomerId.Value));
 
             CreateMap<UpdateReservationCommand, Reservation>();
