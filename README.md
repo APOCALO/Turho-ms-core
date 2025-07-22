@@ -1,5 +1,4 @@
-
-# 🌐 Proyecto Scaffold API .NET 9 para Microservicios.
+# 🌐 **Turho-ms-core – Microservicio base de Turho**
 
 ![Plataforma](https://img.shields.io/badge/platform-.NET%209-blueviolet)
 ![Licencia](https://img.shields.io/badge/license-MIT-green)
@@ -7,108 +6,111 @@
 ![DDD](https://img.shields.io/badge/pattern-DDD-orange)
 ![MediatR](https://img.shields.io/badge/tool-MediatR-red)
 
-> **Proyecto de andamiaje de API eficiente para crear microservicios con .NET 9, aprovechando la arquitectura limpia, el diseño orientado al dominio (DDD) y MediatR**. Este proyecto proporciona una base altamente extensible para crear servicios robustos y escalables teniendo en cuenta las mejores prácticas. 🎯
+> **Turho-ms-core** es el microservicio principal de la App **Turho**, encargado de la gestión de **reservas**. Permite **crear y consultar reservas** de forma escalable, siguiendo una arquitectura basada en **DDD, arquitectura limpia y MediatR**.  
 
 ---
 
-## 🎯 Visión general
+## 🎯 **Visión general**
 
-Este repositorio sirve de andamiaje para crear microservicios .NET eficientes. Diseñado teniendo en cuenta la modularidad y la mantenibilidad, proporciona un sólido punto de partida para aplicaciones de nivel empresarial. El proyecto se basa en:
+**Turho-ms-core** es el núcleo de la plataforma Turho. Este servicio expone la lógica principal relacionada con las **reservas de la aplicación**, garantizando alta disponibilidad, mantenibilidad y fácil integración con otros microservicios del ecosistema.
 
-- 🏗 **Arquitectura limpia**: Fomenta la separación de preocupaciones, lo que facilita las pruebas, el mantenimiento y la ampliación.
-- 📦 **Diseño orientado al dominio (DDD)**: Ayuda a estructurar la lógica empresarial compleja con capas específicas del dominio.
-- 📡 **MediatR**: Facilita la comunicación entre componentes utilizando el patrón mediador para un código más limpio y desacoplado.
+Está construido sobre:
 
----
-
-## 🛠 Características
-
-- **Estructura modular**: Proporciona capas organizadas para dominio, aplicación e infraestructura.
-- **Altamente extensible**: Añade fácilmente nuevas funciones y componentes sin afectar a la estructura central.
-- **Rendimiento eficiente**: Código base optimizado para aplicaciones de microservicios con capacidad de respuesta.
-- **Mejores prácticas**: Sigue las mejores prácticas de .NET y de arquitectura para un código limpio y mantenible.
+- 🏗 **Arquitectura limpia** → Separación clara de capas para mayor mantenibilidad y escalabilidad.  
+- 📦 **Diseño orientado al dominio (DDD)** → Organización de la lógica de negocio enfocada en el contexto de reservas.  
+- 📡 **MediatR** → Comunicación desacoplada entre componentes mediante el patrón mediador.  
 
 ---
 
-## 🚀 Primeros pasos
+## 🛠 **Características principales**
 
-### Requisitos previos
+- ✅ **Gestión completa de reservas**: creación, consulta y administración.  
+- ✅ **Estructura modular y extensible** para agregar nuevas funcionalidades sin afectar la base.  
+- ✅ **Optimizado para microservicios** → ligero y fácil de desplegar en contenedores.  
+- ✅ **Mejores prácticas en .NET 9**, siguiendo patrones de diseño probados.  
 
-- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
-- [SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) (u otra base de datos compatible)
-- [Docker](https://www.docker.com/products/docker-desktop) (opcional para el desarrollo en contenedores)
+---
 
-### Instalación
+## 🚀 **Primeros pasos**
 
-1. **Clonar el repositorio**:
+### **Requisitos previos**
+
+- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)  
+- Base de datos compatible (SQL Server, PostgreSQL, etc.)  
+- [Docker](https://www.docker.com/products/docker-desktop) *(opcional para despliegues en contenedores)*  
+
+### **Instalación**
+
+1. **Clona el repositorio**  
    ```bash
-   git clone https://github.com/APOCALO/ScaffoldingMS.git
-   cd ScaffoldingMS
+   git clone https://github.com/TuOrg/Turho-ms-core.git
+   cd Turho-ms-core
    ```
 
-2. **Instalar dependencias**:
-   - Restore the dependencies by running:
-     ```bash
-     dotnet restore
-     ```
+2. **Restaura dependencias**  
+   ```bash
+   dotnet restore
+   ```
 
-3. **Configurar la base de datos**:
-   - Actualiza `appsettings.json` con tu cadena de conexión a la base de datos.
+3. **Configura la base de datos**  
+   Edita `appsettings.json` con la cadena de conexión correcta.  
 
-4. **Ejecutar la aplicación**:
+4. **Ejecuta la aplicación**  
    ```bash
    dotnet run
    ```
 
 ---
 
-## 📖 Utilización
+## 📖 **Uso**
 
-Este scaffold está diseñado para apoyar el rápido desarrollo de APIs. Puede empezar a crear nuevas funciones definiéndolas en las capas **Dominio** y **Aplicación**, y exponiéndolas después a través de la capa **API**.
+Este microservicio expone endpoints REST para gestionar reservas.  
 
-- **Añadir nuevos Endpoints**: Definir nuevos endpoints añadiendo DTOs de petición/respuesta en `Application` y handlers con MediatR.
-- **Ampliar el dominio**: Organizar la lógica de negocio dentro de la capa `Domain` para la reutilización y la coherencia.
+- **Crear una reserva** → Envía un `POST` con los datos de la reserva.  
+- **Consultar reservas** → Usa `GET` con filtros como fechas, usuario, estado, etc.  
 
-Consulte la [Documentación de la API](#) 📄 para obtener una lista detallada de los puntos finales disponibles y ejemplos de uso.
-
----
-
-## 📂 Estructura del proyecto
-
+La documentación de la API estará disponible mediante Swagger en:  
 ```
-📁 YourProjectName
-├── 📁 Web.Api              # Contiene la capa API
-├── 📁 Application          # Capa de aplicación con lógica de negocio, DTOs y handlers MediatR
-├── 📁 Domain               # Capa de dominio para entidades, interfaces y lógica central
-└── 📁 Infrastructure       # Capa de infraestructura para acceso a datos y servicios externos
+https://localhost:<puerto>/swagger
 ```
 
 ---
 
-## 🧑‍🤝‍�?Contribución
+## 📂 **Estructura del proyecto**
 
-Las contribuciones son bienvenidas. Si desea contribuir a este proyecto, por favor:
-
-1. Fork del repositorio.
-2. Crear una nueva rama (`feature/YourFeature`).
-3. Commit de los cambios..
-4. Reliaza push a la rama y crea un Pull Request.
-
-Por favor, lea nuestras [Directrices de contribución](CONTRIBUTING.md) para más detalles. 🙌
-
----
-
-## 📄 Licencia
-
-Este proyecto está licenciado bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para más detalles.
+```
+📁 Turho-ms-core
+├── 📁 Web.Api              # Capa de presentación con controladores y endpoints
+├── 📁 Application          # Lógica de negocio, DTOs y handlers con MediatR
+├── 📁 Domain               # Entidades, agregados y lógica central del dominio de reservas
+└── 📁 Infrastructure       # Persistencia, repositorios y servicios externos
+```
 
 ---
 
-## 🌟 Agradecimientos
+## 🧑‍🤝‍🧑 **Contribución**
 
-Un agradecimiento especial a la comunidad .NET y a los colaboradores que mejoran continuamente el ecosistema. 🙏
+¡Las contribuciones son bienvenidas! Para colaborar:  
+
+1. Haz un fork del repositorio  
+2. Crea una rama con tu feature (`feature/nueva-funcionalidad`)  
+3. Haz commit de tus cambios  
+4. Sube tu rama y abre un **Pull Request**  
+
+Revisa nuestras [Directrices de contribución](CONTRIBUTING.md) antes de enviar cambios. 🙌  
 
 ---
 
-> Hecho con ❤️ por [Apocalo](https://github.com/APOCALO)
-    "# Turho-ms-core" 
+## 📄 **Licencia**
+
+Este proyecto está licenciado bajo **MIT**. Consulta [LICENSE](LICENSE) para más detalles.  
+
+---
+
+## 🌟 **Agradecimientos**
+
+Gracias a la comunidad .NET y a todos los colaboradores que hacen posible la evolución de Turho. 🙏  
+
+---
+
+> **Hecho con ❤️ para Turho**
