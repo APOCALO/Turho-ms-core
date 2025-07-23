@@ -9,7 +9,6 @@
         public TimeSpan? LunchEnd { get; }
         public bool AllowAppointmentsDuringLunch { get; }
         public int AppointmentDurationMinutes { get; }
-        public int MaxAppointmentsPerDay { get; }
 
         // Constructor requerido por EF Core
         private WorkSchedule() { }
@@ -21,8 +20,7 @@
             TimeSpan? lunchStart,
             TimeSpan? lunchEnd,
             bool allowAppointmentsDuringLunch,
-            int appointmentDurationMinutes,
-            int maxAppointmentsPerDay)
+            int appointmentDurationMinutes)
         {
             var days = workingDays?.Distinct().ToList() ?? throw new ArgumentNullException(nameof(workingDays));
             if (!days.Any())
@@ -33,9 +31,6 @@
 
             if (appointmentDurationMinutes <= 0)
                 throw new ArgumentException("Appointment duration must be greater than zero.");
-
-            if (maxAppointmentsPerDay <= 0)
-                throw new ArgumentException("Max appointments per day must be greater than zero.");
 
             // Validación coherente de almuerzo
             if (lunchStart.HasValue && lunchEnd.HasValue)
@@ -56,7 +51,6 @@
             LunchEnd = lunchEnd;
             AllowAppointmentsDuringLunch = allowAppointmentsDuringLunch;
             AppointmentDurationMinutes = appointmentDurationMinutes;
-            MaxAppointmentsPerDay = maxAppointmentsPerDay;
         }
 
         /// <summary>
@@ -69,14 +63,11 @@
             TimeSpan? lunchStart,
             TimeSpan? lunchEnd,
             bool allowAppointmentsDuringLunch,
-            int appointmentDurationMinutes,
-            int maxAppointmentsPerDay)
+            int appointmentDurationMinutes)
         {
-            // Validar nulls mínimos
             if (workingDays == null || !workingDays.Any())
                 throw new ArgumentException("You must specify at least one business day.", nameof(workingDays));
 
-            // El resto de validaciones se delegan al constructor
             return new WorkSchedule(
                 workingDays,
                 openingHour,
@@ -84,16 +75,33 @@
                 lunchStart,
                 lunchEnd,
                 allowAppointmentsDuringLunch,
-                appointmentDurationMinutes,
-                maxAppointmentsPerDay
+                appointmentDurationMinutes
             );
         }
 
         /// <summary>
-        /// Cantidad de citas posibles en un día según la duración
+        /// Tiempo total disponible para citas en minutos, excluyendo almuerzo si no se permiten citas en ese periodo
         /// </summary>
-        public int TotalPossibleAppointmentsPerDay =>
-            (int)((ClosingHour - OpeningHour).TotalMinutes / AppointmentDurationMinutes);
+        private double EffectiveWorkingMinutes
+        {
+            get
+            {
+                double total = (ClosingHour - OpeningHour).TotalMinutes;
+
+                if (!AllowAppointmentsDuringLunch && LunchStart.HasValue && LunchEnd.HasValue)
+                {
+                    total -= (LunchEnd.Value - LunchStart.Value).TotalMinutes;
+                }
+
+                return Math.Max(0, total);
+            }
+        }
+
+        /// <summary>
+        /// Cantidad máxima de citas posibles en un día considerando horario, almuerzo y duración de cada cita
+        /// </summary>
+        public int MaxAppointmentsPerDay =>
+            (int)(EffectiveWorkingMinutes / AppointmentDurationMinutes);
 
         /// <summary>
         /// Verifica si una hora está dentro del horario laboral permitido

@@ -26,7 +26,7 @@ namespace Application.Companies.Commands.CreateCompany
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _companyRepository = companyRepository ?? throw new ArgumentNullException(nameof(companyRepository));
-            _fileStorageService = fileStorageService;
+            _fileStorageService = fileStorageService ?? throw new ArgumentNullException(nameof(fileStorageService));
         }
 
         protected async override Task<ErrorOr<ApiResponse<Unit>>> HandleRequest(CreateCompanyCommand request, CancellationToken cancellationToken)
@@ -42,23 +42,16 @@ namespace Application.Companies.Commands.CreateCompany
             }
 
             var company = _mapper.Map<Company>(request);
-            var companyPhotos = new List<string>();
 
-            // Subir cada foto
-            for (int i = 0; i < request.CompanyPhostos.Count; i++)
+            // Creamos las tareas de subida
+            var uploadTasks = request.CompanyPhostos.Select(async (photo, index) =>
             {
-                var photo = request.CompanyPhostos[i];
-
-                // Nombre del archivo en MinIO → companies/{companyId}/photo_1.png
-                var objectName = $"companies/{company.Id}/photo_{i + 1}_{Path.GetExtension(photo.FileName)}";
-
-                // Obtener el contentType del archivo
+                var extension = Path.GetExtension(photo.FileName);
+                var objectName = $"companies/{company.Id.Value}/photo_{index + 1}{extension}";
                 var contentType = photo.ContentType ?? "image/png";
 
-                // Abrir el stream
-                using var stream = photo.OpenReadStream();
+                await using var stream = photo.OpenReadStream();
 
-                // Subir al almacenamiento privado
                 var uploadResult = await _fileStorageService.UploadFileAsync(
                     BUCKETNAME,
                     objectName,
@@ -66,14 +59,16 @@ namespace Application.Companies.Commands.CreateCompany
                     contentType
                 );
 
-                // Si la subida fue exitosa, guardamos solo el objectName
-                if (!uploadResult.IsError)
-                {
-                    companyPhotos.Add(objectName);
-                }
-            }
+                return uploadResult.IsError ? null : objectName;
+            });
 
-            company.AddPhotos(companyPhotos);
+            // Ejecutamos en paralelo todas las subidas
+            var uploadedObjects = await Task.WhenAll(uploadTasks);
+
+            // Filtramos las que fallaron
+            var successfulPhotos = uploadedObjects.Where(x => x is not null).Cast<string>().ToList();
+
+            company.AddPhotos(successfulPhotos);
 
             // Publish event domain
             //customer.RaiseCustomerCreatedEvent(Guid.NewGuid(), customer.Id, customer.Name, customer.Email);

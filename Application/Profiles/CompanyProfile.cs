@@ -14,7 +14,7 @@ namespace Application.Profiles
             CreateMap<CreateCompanyCommand, Company>()
                 .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => PhoneNumber.Create(src.PhoneNumber, src.CountryCode)))
                 .ForMember(dest => dest.Address, opt => opt.MapFrom(src => Address.Create(src.Country, src.Department, src.City, src.StreetType, src.StreetNumber, src.CrossStreetNumber, src.PropertyNumber, src.ZipCode)))
-                .ForMember(dest => dest.Schedule, opt => opt.MapFrom(src => WorkSchedule.Create(src.WorkingDays, src.OpeningHour, src.ClosingHour, src.LunchStart, src.LunchEnd, src.AllowAppointmentsDuringLunch, src.AppointmentDurationMinutes, src.MaxAppointmentsPerDay)));
+                .ForMember(dest => dest.Schedule, opt => opt.MapFrom(src => WorkSchedule.Create(src.WorkingDays, src.OpeningHour, src.ClosingHour, src.LunchStart, src.LunchEnd, src.AllowAppointmentsDuringLunch, src.AppointmentDurationMinutes)));
 
             // Mapeo de Company a CustomerResponseDTO
             CreateMap<Company, CompanyResponseDTO>()

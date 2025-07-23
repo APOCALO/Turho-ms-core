@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Addedcompaniestable : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -36,7 +36,6 @@ namespace Infrastructure.Migrations
                     Schedule_LunchEnd = table.Column<TimeSpan>(type: "interval", nullable: true),
                     Schedule_AllowAppointmentsDuringLunch = table.Column<bool>(type: "boolean", nullable: false),
                     Schedule_AppointmentDurationMinutes = table.Column<int>(type: "integer", nullable: false),
-                    Schedule_MaxAppointmentsPerDay = table.Column<int>(type: "integer", nullable: false),
                     WorksOnHolidays = table.Column<bool>(type: "boolean", nullable: false),
                     FlexibleHours = table.Column<bool>(type: "boolean", nullable: false),
                     TimeZone = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),

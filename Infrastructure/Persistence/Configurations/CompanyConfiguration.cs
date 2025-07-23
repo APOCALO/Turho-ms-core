@@ -114,9 +114,6 @@ namespace Infrastructure.Persistence.Configurations
                 scheduleBuilder.Property(s => s.AppointmentDurationMinutes)
                     .IsRequired();
 
-                scheduleBuilder.Property(s => s.MaxAppointmentsPerDay)
-                    .IsRequired();
-
                 // ✅ 2. ValueComparer para lista de DayOfWeek (WorkingDays)
                 var dayOfWeekListComparer = new ValueComparer<IReadOnlyList<DayOfWeek>>(
                     (c1, c2) => c1.SequenceEqual(c2),

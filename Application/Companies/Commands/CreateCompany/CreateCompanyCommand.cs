@@ -28,7 +28,6 @@ namespace Application.Companies.Commands.CreateCompany
         public TimeSpan? LunchEnd { get; init; }
         public bool AllowAppointmentsDuringLunch { get; init; }
         public int AppointmentDurationMinutes { get; init; }
-        public int MaxAppointmentsPerDay { get; init; }
         public bool WorksOnHolidays { get; init; }
         public bool FlexibleHours { get; init; }
         public string TimeZone { get; init; }

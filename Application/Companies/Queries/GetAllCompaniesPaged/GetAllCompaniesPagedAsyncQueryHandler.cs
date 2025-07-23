@@ -45,20 +45,20 @@ namespace Application.Companies.Queries.GetAllCompaniesPaged
                 }
 
                 // Si no está cacheado, generamos URLs nuevas
-                var signedUrls = new List<string>();
-                foreach (var objectName in company.CompanyPhotos)
+                var signedUrlsTasks = company.CompanyPhotos.Select(async objectName =>
                 {
                     var urlResult = await _fileStorageService.GetFileUrlAsync(
                         BUCKETNAME,
                         objectName,
                         URL_EXPIRY_SECONDS
                     );
+                    return urlResult.IsError ? null : urlResult.Value;
+                });
 
-                    if (!urlResult.IsError)
-                    {
-                        signedUrls.Add(urlResult.Value);
-                    }
-                }
+                var signedUrls = (await Task.WhenAll(signedUrlsTasks))
+                    .Where(url => url is not null)
+                    .Cast<string>()
+                    .ToList();
 
                 // Guardar en cache por el mismo tiempo que dura la URL (1h)
                 await _cache.SetAsync(cacheKey, signedUrls, TimeSpan.FromSeconds(URL_EXPIRY_SECONDS));

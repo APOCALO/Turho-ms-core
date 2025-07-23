@@ -76,9 +76,6 @@ namespace Application.Companies.Commands.CreateCompany
             RuleFor(c => c.AppointmentDurationMinutes)
                 .GreaterThan(0).WithMessage("La duración de las citas debe ser mayor a 0 minutos.");
 
-            RuleFor(c => c.MaxAppointmentsPerDay)
-                .GreaterThan(0).WithMessage("Debe especificar al menos 1 cita máxima por día.");
-
             // ✅ Zona horaria obligatoria (igual que EF)
             RuleFor(c => c.TimeZone)
                 .NotEmpty().WithMessage("La zona horaria es obligatoria.")

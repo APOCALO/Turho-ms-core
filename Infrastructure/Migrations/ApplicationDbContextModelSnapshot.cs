@@ -251,9 +251,6 @@ namespace Infrastructure.Migrations
                             b1.Property<TimeSpan?>("LunchStart")
                                 .HasColumnType("interval");
 
-                            b1.Property<int>("MaxAppointmentsPerDay")
-                                .HasColumnType("integer");
-
                             b1.Property<TimeSpan>("OpeningHour")
                                 .HasColumnType("interval");
 

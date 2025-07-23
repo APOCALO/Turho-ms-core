@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250723062207_Added-companies-table")]
-    partial class Addedcompaniestable
+    [Migration("20250723212407_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -253,9 +253,6 @@ namespace Infrastructure.Migrations
 
                             b1.Property<TimeSpan?>("LunchStart")
                                 .HasColumnType("interval");
-
-                            b1.Property<int>("MaxAppointmentsPerDay")
-                                .HasColumnType("integer");
 
                             b1.Property<TimeSpan>("OpeningHour")
                                 .HasColumnType("interval");
