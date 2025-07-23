@@ -1,6 +1,6 @@
 ﻿using Application.Common;
 using Application.Extensions;
-using Application.Interfaces;
+using Application.Interfaces.Repositories;
 using Domain.Primitives;
 using ErrorOr;
 using Infrastructure.Persistence.Data;

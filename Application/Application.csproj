@@ -15,9 +15,17 @@
     <PackageReference Include="ErrorOr" Version="2.0.1" />
     <PackageReference Include="FluentValidation" Version="12.0.0" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
+    <PackageReference Include="Scrutor" Version="6.1.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Companies\Commands\DeleteCompany\" />
+    <Folder Include="Companies\Commands\UpdateCompany\" />
+    <Folder Include="Companies\EventHandlers\" />
+    <Folder Include="Companies\Queries\GetCompanyById\" />
   </ItemGroup>
 
 </Project>

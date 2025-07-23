@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Application.Interfaces.Repositories;
 using Azure.Messaging.ServiceBus;
 using Domain.Primitives;
 using Infrastructure.Persistence.Data;
@@ -39,7 +40,15 @@ namespace Infrastructure
             // Repositories dependency injection
             services.AddScoped(typeof(IBaseRepository<,>), typeof(BaseRepository<,>));
             services.AddScoped<ICustomerRepository, CustomerRepository>();
+            services.AddScoped<ICompanyRepository, CompanyRepository>();
             services.AddScoped<IReservationRepository, ReservationRepository>();
+
+            services.Scan(scan => scan
+            .FromAssemblyOf<ICustomerRepository>() // o Assembly.GetExecutingAssembly()
+            .AddClasses(classes => classes.InNamespaces("Infrastructure.Persistence.Repositories")) // Filtra por namespace
+            .AsImplementedInterfaces() // Registra como la(s) interfaz(es) que implementa
+            .WithScopedLifetime()
+);
 
             return services;
         }

@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Text.Json.Serialization;
 using Web.Api.Middlewares;
 
 namespace Web.Api
@@ -7,7 +8,11 @@ namespace Web.Api
     {
         public static IServiceCollection AddPresentation(this IServiceCollection services) 
         {
-            services.AddControllers();
+            services.AddControllers()
+                .AddJsonOptions(opt =>
+                {
+                    opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                });
 
             // Add Swagger
             services.AddSwaggerGen(options =>

@@ -1,5 +1,5 @@
 ﻿using Application.Common;
-using Application.Interfaces;
+using Application.Interfaces.Repositories;
 using Domain.Customers;
 using Domain.Primitives;
 using ErrorOr;

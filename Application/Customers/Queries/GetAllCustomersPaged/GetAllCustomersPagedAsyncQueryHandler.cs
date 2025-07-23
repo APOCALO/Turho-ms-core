@@ -1,6 +1,6 @@
 ﻿using Application.Common;
 using Application.Customers.DTOs;
-using Application.Interfaces;
+using Application.Interfaces.Repositories;
 using AutoMapper;
 using ErrorOr;
 using Microsoft.Extensions.Logging;

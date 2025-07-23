@@ -1,6 +1,6 @@
 ﻿using Domain.Reservations;
 
-namespace Application.Interfaces
+namespace Application.Interfaces.Repositories
 {
     public interface IReservationRepository : IBaseRepository<Reservation, ReservationId>
     {

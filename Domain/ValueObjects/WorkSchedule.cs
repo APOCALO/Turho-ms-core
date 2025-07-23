@@ -14,7 +14,7 @@
         // Constructor requerido por EF Core
         private WorkSchedule() { }
 
-        public WorkSchedule(
+        private WorkSchedule(
             IEnumerable<DayOfWeek> workingDays,
             TimeSpan openingHour,
             TimeSpan closingHour,
@@ -57,6 +57,36 @@
             AllowAppointmentsDuringLunch = allowAppointmentsDuringLunch;
             AppointmentDurationMinutes = appointmentDurationMinutes;
             MaxAppointmentsPerDay = maxAppointmentsPerDay;
+        }
+
+        /// <summary>
+        /// Método de factoría estático para crear un horario de trabajo
+        /// </summary>
+        public static WorkSchedule Create(
+            IEnumerable<DayOfWeek> workingDays,
+            TimeSpan openingHour,
+            TimeSpan closingHour,
+            TimeSpan? lunchStart,
+            TimeSpan? lunchEnd,
+            bool allowAppointmentsDuringLunch,
+            int appointmentDurationMinutes,
+            int maxAppointmentsPerDay)
+        {
+            // Validar nulls mínimos
+            if (workingDays == null || !workingDays.Any())
+                throw new ArgumentException("You must specify at least one business day.", nameof(workingDays));
+
+            // El resto de validaciones se delegan al constructor
+            return new WorkSchedule(
+                workingDays,
+                openingHour,
+                closingHour,
+                lunchStart,
+                lunchEnd,
+                allowAppointmentsDuringLunch,
+                appointmentDurationMinutes,
+                maxAppointmentsPerDay
+            );
         }
 
         /// <summary>

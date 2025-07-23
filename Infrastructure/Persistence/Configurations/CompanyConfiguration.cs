@@ -2,6 +2,7 @@
 using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Infrastructure.Persistence.Configurations
 {
@@ -34,12 +35,20 @@ namespace Infrastructure.Persistence.Configurations
                 .HasMaxLength(100)
                 .IsRequired();
 
-            // CoverPhotoUrls as simple JSON or string[] (depending on DB provider)
+            // ✅ 1. ValueComparer para listas de string (CoverPhotoUrls)
+            var stringListComparer = new ValueComparer<List<string>>(
+                (c1, c2) => c1.SequenceEqual(c2),
+                c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                c => c.ToList()
+            );
+
+            // CoverPhotoUrls como string separado por ;
             builder.Property(c => c.CoverPhotoUrls)
                 .HasConversion(
                     urls => string.Join(';', urls),
                     value => value.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList()
-                );
+                )
+                .Metadata.SetValueComparer(stringListComparer);
 
             // PhoneNumber ValueObject
             builder.Property(c => c.PhoneNumber)
@@ -105,7 +114,14 @@ namespace Infrastructure.Persistence.Configurations
                 scheduleBuilder.Property(s => s.MaxAppointmentsPerDay)
                     .IsRequired();
 
-                // Persist WorkingDays as a string like "Monday,Tuesday"
+                // ✅ 2. ValueComparer para lista de DayOfWeek (WorkingDays)
+                var dayOfWeekListComparer = new ValueComparer<IReadOnlyList<DayOfWeek>>(
+                    (c1, c2) => c1.SequenceEqual(c2),
+                    c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                    c => c.ToList().AsReadOnly()
+                );
+
+                // Persist WorkingDays como "Monday,Tuesday"
                 scheduleBuilder.Property(s => s.WorkingDays)
                     .HasConversion(
                         days => string.Join(',', days),
@@ -113,7 +129,8 @@ namespace Infrastructure.Persistence.Configurations
                                       .Select(d => Enum.Parse<DayOfWeek>(d))
                                       .ToList()
                                       .AsReadOnly()
-                    );
+                    )
+                    .Metadata.SetValueComparer(dayOfWeekListComparer);
             });
 
             builder.Property(c => c.WorksOnHolidays).IsRequired();

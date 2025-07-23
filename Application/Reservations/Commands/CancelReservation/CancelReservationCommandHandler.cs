@@ -1,5 +1,5 @@
 ﻿using Application.Common;
-using Application.Interfaces;
+using Application.Interfaces.Repositories;
 using Application.Reservations.DTOs;
 using AutoMapper;
 using Domain.Primitives;

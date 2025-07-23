@@ -1,4 +1,4 @@
-﻿using Application.Interfaces;
+﻿using Application.Interfaces.Repositories;
 using Domain.Reservations;
 using ErrorOr;
 using Infrastructure.Persistence.Data;

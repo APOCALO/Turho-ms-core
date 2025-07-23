@@ -1,14 +1,14 @@
 ﻿using Application.Interfaces.Repositories;
-using Domain.Customers;
+using Domain.Companies;
 using Infrastructure.Persistence.Data;
 
 namespace Infrastructure.Persistence.Repositories
 {
-    public class CustomerRepository : BaseRepository<Customer, CustomerId>, ICustomerRepository
+    public class CompanyRepository : BaseRepository<Company, CompanyId>, ICompanyRepository
     {
         private readonly ApplicationDbContext _dbContext;
 
-        public CustomerRepository(ApplicationDbContext dbContext) : base(dbContext)
+        public CompanyRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
             _dbContext = dbContext;
         }

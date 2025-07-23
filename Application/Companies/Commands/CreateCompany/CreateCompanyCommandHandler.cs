@@ -1,30 +1,30 @@
 ﻿using Application.Common;
 using Application.Interfaces.Repositories;
 using AutoMapper;
-using Domain.Customers;
+using Domain.Companies;
 using Domain.Primitives;
 using Domain.ValueObjects;
 using ErrorOr;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Customers.Commands.CreateCustomer
+namespace Application.Companies.Commands.CreateCompany
 {
-    internal sealed class CreateCustomerCommandHandler : ApiBaseHandler<CreateCustomerCommand, Unit>
+    internal sealed class CreateCompanyCommandHandler : ApiBaseHandler<CreateCompanyCommand, Unit>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly ICustomerRepository _customerRepository;
+        private readonly ICompanyRepository _companyRepository;
 
-        public CreateCustomerCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, ICustomerRepository customerRepository, ILogger<CreateCustomerCommandHandler> logger)
+        public CreateCompanyCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<CreateCompanyCommandHandler> logger, ICompanyRepository companyRepository)
             : base(logger)
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-            _customerRepository = customerRepository ?? throw new ArgumentNullException(nameof(customerRepository));
+            _companyRepository = companyRepository ?? throw new ArgumentNullException(nameof(companyRepository));
         }
 
-        protected override async Task<ErrorOr<ApiResponse<Unit>>> HandleRequest(CreateCustomerCommand request, CancellationToken cancellationToken)
+        protected async override Task<ErrorOr<ApiResponse<Unit>>> HandleRequest(CreateCompanyCommand request, CancellationToken cancellationToken)
         {
             if (PhoneNumber.Create(request.PhoneNumber, request.CountryCode) is not PhoneNumber phoneNumber)
             {
@@ -36,12 +36,12 @@ namespace Application.Customers.Commands.CreateCustomer
                 return Error.Validation("CreateCustomer.Address", "Address has not valid format.");
             }
 
-            var customer = _mapper.Map<Customer>(request);
+            var customer = _mapper.Map<Company>(request);
 
             // Publish event domain
-            customer.RaiseCustomerCreatedEvent(Guid.NewGuid(), customer.Id, customer.Name, customer.Email);
+            //customer.RaiseCustomerCreatedEvent(Guid.NewGuid(), customer.Id, customer.Name, customer.Email);
 
-            await _customerRepository.AddAsync(customer, cancellationToken);
+            await _companyRepository.AddAsync(customer, cancellationToken);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
