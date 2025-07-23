@@ -15,8 +15,11 @@ namespace Infrastructure.Persistence.Configurations
             builder.HasKey(c => c.Id);
 
             // Id Configuration
-            builder.Property(c => c.Id).HasConversion(
-                customerId => customerId.Value, value => new CustomerId(value))
+            builder.Property(c => c.Id)
+                .HasConversion(
+                    customerId => customerId.Value,
+                    value => new CustomerId(value))
+                .ValueGeneratedNever() // porque lo generas en dominio
                 .IsRequired();
 
             // Name Configuration
@@ -36,17 +39,18 @@ namespace Infrastructure.Persistence.Configurations
             builder.Property(c => c.Email)
                 .HasMaxLength(250)
                 .IsRequired();
+
             builder.HasIndex(c => c.Email).IsUnique();
 
-            // PhoneNumber Configuration
+            // PhoneNumber ValueObject Configuration
             builder.Property(c => c.PhoneNumber)
                 .HasConversion(
-                    phoneNumberExample => phoneNumberExample.Value,
+                    phoneNumber => phoneNumber.Value,
                     value => PhoneNumber.CreateWithoutCountryCode(value))
                 .HasMaxLength(15)
                 .IsRequired();
 
-            // Address Configuration
+            // Address ValueObject Configuration
             builder.OwnsOne(c => c.Address, addressBuilder =>
             {
                 addressBuilder.Property(a => a.Country)

@@ -31,6 +31,9 @@ namespace Domain.Customers
             IsActive = isActive;
         }
 
+        public void Deactivate() => IsActive = false;
+        public void Activate() => IsActive = true;
+
         public void RaiseCustomerCreatedEvent(Guid domainEventId, CustomerId customerId, string customerName, string customerEmail)
         {
             Raise(new CreatedCustomerEvent(Guid.NewGuid(), customerId, customerName, customerEmail));

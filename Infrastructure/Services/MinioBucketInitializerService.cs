@@ -35,19 +35,19 @@ namespace Infrastructure.Services
 
                     if (!bucketExists)
                     {
-                        _logger.LogInformation("Bucket '{Bucket}' no existe. Creando...", bucketName);
+                        _logger.LogInformation("Bucket '{Bucket}' does not exist. Creating...", bucketName);
                         await _minioClient.MakeBucketAsync(
                             new MakeBucketArgs().WithBucket(bucketName), cancellationToken: stoppingToken);
-                        _logger.LogInformation("Bucket '{Bucket}' creado exitosamente.", bucketName);
+                        _logger.LogInformation("Bucket '{Bucket}' created successfully.", bucketName);
                     }
                     else
                     {
-                        _logger.LogInformation("Bucket '{Bucket}' ya existe. No se necesita crear.", bucketName);
+                        _logger.LogInformation("Bucket '{Bucket}' already exists. No need to create.", bucketName);
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error al inicializar el bucket de MinIO.");
+                    _logger.LogError(ex, "Error initializing the MinIO bucket.");
                 }
             }
         }
