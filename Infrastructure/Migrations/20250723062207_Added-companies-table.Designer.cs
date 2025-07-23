@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250723005359_Added-companies-appointments")]
-    partial class Addedcompaniesappointments
+    [Migration("20250723062207_Added-companies-table")]
+    partial class Addedcompaniestable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -57,7 +57,7 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("CoverPhotoUrls")
+                    b.Property<string>("CompanyPhotos")
                         .IsRequired()
                         .HasColumnType("text");
 

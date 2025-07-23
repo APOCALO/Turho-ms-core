@@ -68,7 +68,7 @@ namespace Web.Api.Controllers
         [ProducesResponseType(typeof(CustomerResponseDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Create([FromBody] CreateCompanyCommand command)
+        public async Task<IActionResult> Create([FromForm] CreateCompanyCommand command)
         {
             var result = await _mediator.Send(command);
 

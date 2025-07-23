@@ -42,8 +42,11 @@ namespace Infrastructure.Persistence.Configurations
                 c => c.ToList()
             );
 
-            // CoverPhotoUrls como string separado por ;
-            builder.Property(c => c.CoverPhotoUrls)
+            // Ignoramos CoverPhotoUrls
+            builder.Ignore(c => c.CoverPhotoUrls);
+
+            // CompanyPhotos como string separado por ;
+            builder.Property(c => c.CompanyPhotos)
                 .HasConversion(
                     urls => string.Join(';', urls),
                     value => value.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList()

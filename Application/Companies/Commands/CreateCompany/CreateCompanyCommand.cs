@@ -1,5 +1,6 @@
 ﻿using Application.Common;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 
 namespace Application.Companies.Commands.CreateCompany
 {
@@ -8,7 +9,7 @@ namespace Application.Companies.Commands.CreateCompany
         public Guid Id { get; init; }
         public string Name { get; init; }
         public string? Description { get; init; }
-        public List<string> CoverPhotoUrls { get; init; } = new();
+        public List<IFormFile> CompanyPhostos { get; init; } = new();
         public string PhoneNumber { get; init; }
         public string CountryCode { get; init; }
         public string Country { get; init; }

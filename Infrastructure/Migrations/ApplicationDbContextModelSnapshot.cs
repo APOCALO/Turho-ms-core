@@ -54,7 +54,7 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("CoverPhotoUrls")
+                    b.Property<string>("CompanyPhotos")
                         .IsRequired()
                         .HasColumnType("text");
 

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Addedcompaniesappointments : Migration
+    public partial class Addedcompaniestable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -18,7 +18,7 @@ namespace Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    CoverPhotoUrls = table.Column<string>(type: "text", nullable: false),
+                    CompanyPhotos = table.Column<string>(type: "text", nullable: false),
                     Address_Country = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Address_Department = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Address_City = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
