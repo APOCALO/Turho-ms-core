@@ -1,11 +1,10 @@
 ﻿using Application.Common;
 using Application.Companies.Commands.CreateCompany;
 using Application.Companies.Queries.GetAllCompaniesPaged;
+using Application.Companies.Queries.GetCompanyById;
 using Application.Customers.Commands.DeleteCustomer;
 using Application.Customers.Commands.UpdateCustomer;
 using Application.Customers.DTOs;
-using Application.Customers.Queries.GetAllCustomersPaged;
-using Application.Customers.Queries.GetCustomerById;
 using ErrorOr;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -43,13 +42,21 @@ namespace Web.Api.Controllers
             );
         }
 
+        /// <summary>
+        /// Retrieves a company by its unique identifier.
+        /// </summary>
+        /// <param name="id">The unique identifier of the company.</param>
+        /// <response code="200">Returns the company details.</response>
+        /// <response code="400">The provided identifier is invalid.</response>
+        /// <response code="404">Company not found.</response>
+        /// <response code="500">An unexpected error occurred on the server.</response>
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(CustomerResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetByIdAsync(Guid id)
         {
-            var result = await _mediator.Send(new GetCustomerByIdQuery(id));
+            var result = await _mediator.Send(new GetCompanyByIdQuery(id));
 
             return result.Match(
                 customer => Ok(customer),
@@ -58,12 +65,12 @@ namespace Web.Api.Controllers
         }
 
         /// <summary>
-        /// Crea una nueva compañía.
+        /// Create a new company.
         /// </summary>
-        /// <param name="command">Datos para registrar la compañía.</param>
-        /// <response code="201">Compañía creada correctamente.</response>
-        /// <response code="400">Datos inválidos.</response>
-        /// <response code="500">Error interno del servidor.</response>
+        /// <param name="command">Information required to register the company.</param>
+        /// <response code="201">Company created successfully.</response>
+        /// <response code="400">Invalid data.</response>
+        /// <response code="500">Internal server error.</response>
         [HttpPost]
         [ProducesResponseType(typeof(CustomerResponseDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -25,7 +25,6 @@
     <Folder Include="Companies\Commands\DeleteCompany\" />
     <Folder Include="Companies\Commands\UpdateCompany\" />
     <Folder Include="Companies\EventHandlers\" />
-    <Folder Include="Companies\Queries\GetCompanyById\" />
   </ItemGroup>
 
 </Project>

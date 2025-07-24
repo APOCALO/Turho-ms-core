@@ -33,7 +33,7 @@ namespace Application.Companies.Queries.GetAllCompaniesPaged
             // Recorremos las compañías para generar URLs firmadas
             foreach (var company in companies)
             {
-                var cacheKey = $"company:{company.Id}:photos";
+                var cacheKey = $"company:{company.Id.Value}:photos";
 
                 // Intentar obtener desde cache
                 var cachedUrls = await _cache.GetAsync<List<string>>(cacheKey);
