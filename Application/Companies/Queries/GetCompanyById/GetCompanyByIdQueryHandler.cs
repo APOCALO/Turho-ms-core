@@ -43,7 +43,7 @@ namespace Application.Companies.Queries.GetCompanyById
                 return new ApiResponse<CompanyResponseDTO>(mappedNoPhotos, true);
             }
 
-            var cacheKey = $"company:{company.Id.Value}:photos";
+            var cacheKey = $"v1:company:{company.Id.Value}:photos";
 
             // Intentar obtener desde cache
             var cachedUrls = await _cache.GetAsync<List<string>>(cacheKey);

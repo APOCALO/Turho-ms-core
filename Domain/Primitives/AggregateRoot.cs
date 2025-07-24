@@ -1,6 +1,6 @@
 ﻿namespace Domain.Primitives
 {
-    public abstract class AggregateRoot
+    public abstract class AggregateRoot : BaseEntity
     {
         private readonly List<DomainEvent> _domainEvents = new();
         public List<DomainEvent> GetDomainEvents() => _domainEvents;
