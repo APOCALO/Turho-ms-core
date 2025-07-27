@@ -1,5 +1,6 @@
 ﻿using Application.Common;
 using Application.Companies.Commands.CreateCompany;
+using Application.Companies.DTOs;
 using Application.Companies.Queries.GetAllCompaniesPaged;
 using Application.Companies.Queries.GetCompanyById;
 using Application.Customers.Commands.DeleteCustomer;
@@ -8,6 +9,7 @@ using Application.Customers.DTOs;
 using ErrorOr;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using NpgsqlTypes;
 
 namespace Web.Api.Controllers
 {
@@ -50,8 +52,8 @@ namespace Web.Api.Controllers
         /// <response code="400">The provided identifier is invalid.</response>
         /// <response code="404">Company not found.</response>
         /// <response code="500">An unexpected error occurred on the server.</response>
-        [HttpGet("{id}")]
-        [ProducesResponseType(typeof(CustomerResponseDTO), StatusCodes.Status200OK)]
+        [HttpGet("{id:guid}", Name = "GetByIdAsync")]
+        [ProducesResponseType(typeof(CompanyResponseDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetByIdAsync(Guid id)
@@ -59,7 +61,7 @@ namespace Web.Api.Controllers
             var result = await _mediator.Send(new GetCompanyByIdQuery(id));
 
             return result.Match(
-                customer => Ok(customer),
+                company => Ok(company),
                 errors => Problem(errors)
             );
         }
@@ -72,7 +74,7 @@ namespace Web.Api.Controllers
         /// <response code="400">Invalid data.</response>
         /// <response code="500">Internal server error.</response>
         [HttpPost]
-        [ProducesResponseType(typeof(CustomerResponseDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(CompanyResponseDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Create([FromForm] CreateCompanyCommand command)
@@ -80,7 +82,14 @@ namespace Web.Api.Controllers
             var result = await _mediator.Send(command);
 
             return result.Match(
-                customer => Created(),
+                company =>
+                {
+                    return CreatedAtRoute(
+                        nameof(GetByIdAsync),
+                        new { id = company.Data.Id },
+                        company
+                    );
+                },
                 errors => Problem(errors)
             );
         }

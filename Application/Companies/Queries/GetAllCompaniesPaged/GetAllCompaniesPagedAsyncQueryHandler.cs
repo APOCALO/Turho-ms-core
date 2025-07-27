@@ -8,17 +8,24 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.Companies.Queries.GetAllCompaniesPaged
 {
-    internal sealed class GetAllCompaniesPagedAsyncQueryHandler : ApiBaseHandler<GetAllCompaniesPagedAsyncQuery, IEnumerable<CompanyResponseDTO>>
+    internal sealed class GetAllCompaniesPagedAsyncQueryHandler
+        : ApiBaseHandler<GetAllCompaniesPagedAsyncQuery, IEnumerable<CompanyResponseDTO>>
     {
         private readonly IMapper _mapper;
         private readonly ICompanyRepository _companyRepository;
         private readonly IFileStorageService _fileStorageService;
         private readonly IRedisCacheService _cache;
-        // Bucket donde se guardan las fotos
-        const string BUCKETNAME = "companies-photos";
-        const int URL_EXPIRY_SECONDS = 3600;
 
-        public GetAllCompaniesPagedAsyncQueryHandler(IMapper mapper, ILogger<GetAllCompaniesPagedAsyncQueryHandler> logger, ICompanyRepository companyRepository, IFileStorageService fileStorageService, IRedisCacheService cache) : base(logger)
+        private const string BUCKETNAME = "companies-photos";
+        private const int URL_EXPIRY_SECONDS = 3600;
+
+        public GetAllCompaniesPagedAsyncQueryHandler(
+            IMapper mapper,
+            ILogger<GetAllCompaniesPagedAsyncQueryHandler> logger,
+            ICompanyRepository companyRepository,
+            IFileStorageService fileStorageService,
+            IRedisCacheService cache)
+            : base(logger)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _companyRepository = companyRepository ?? throw new ArgumentNullException(nameof(companyRepository));
@@ -26,68 +33,27 @@ namespace Application.Companies.Queries.GetAllCompaniesPaged
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
-        protected override async Task<ErrorOr<ApiResponse<IEnumerable<CompanyResponseDTO>>>> HandleRequest(GetAllCompaniesPagedAsyncQuery request, CancellationToken cancellationToken)
+        protected override async Task<ErrorOr<ApiResponse<IEnumerable<CompanyResponseDTO>>>> HandleRequest(
+            GetAllCompaniesPagedAsyncQuery request,
+            CancellationToken cancellationToken)
         {
+            // Obtener compañías paginadas
             var (companies, totalCount) = await _companyRepository.GetAllPagedAsync(request.Pagination, cancellationToken);
 
             if (!companies.Any())
             {
-                var emptyResponse = new ApiResponse<IEnumerable<CompanyResponseDTO>>(Enumerable.Empty<CompanyResponseDTO>(), true);
-                return emptyResponse;
+                return new ApiResponse<IEnumerable<CompanyResponseDTO>>(Enumerable.Empty<CompanyResponseDTO>(), true);
             }
 
-            // Generar todas las cacheKeys de esta página
-            var companyKeys = companies
-                .Where(c => c.CompanyPhotos != null && c.CompanyPhotos.Any())
-                .Select(c => $"v1:company:{c.Id.Value}:photos")
+            // Procesar URLs de fotos solo para las compañías que tienen fotos
+            var companiesWithPhotos = companies
+                .Where(c => c.CompanyPhotos != null && c.CompanyPhotos.Count > 0)
                 .ToList();
 
-            // Una sola llamada a Redis para traer todo lo que exista en caché
-            var cachedResults = await _cache.GetManyAsync<List<string>>(companyKeys);
-
-            // Procesar cada compañía
-            var processingTasks = companies.Select(async company =>
+            if (companiesWithPhotos.Count > 0)
             {
-                if (company.CompanyPhotos == null || !company.CompanyPhotos.Any())
-                    return;
-
-                var cacheKey = $"v1:company:{company.Id.Value}:photos";
-
-                // Si ya tenemos en cache, usarlo
-                if (cachedResults.TryGetValue(cacheKey, out var cachedUrls) && cachedUrls is not null && cachedUrls.Count > 0)
-                {
-                    company.SetCoverPhotoUrls(cachedUrls);
-                    return;
-                }
-
-                // No estaba cacheado → Generamos URLs firmadas en paralelo
-                var signedUrlsTasks = company.CompanyPhotos.Select(async objectName =>
-                {
-                    var urlResult = await _fileStorageService.GetFileUrlAsync(
-                        BUCKETNAME,
-                        objectName,
-                        URL_EXPIRY_SECONDS
-                    );
-                    return urlResult.IsError ? null : urlResult.Value;
-                });
-
-                var signedUrls = (await Task.WhenAll(signedUrlsTasks))
-                    .Where(url => url is not null)
-                    .Cast<string>()
-                    .ToList();
-
-                if (signedUrls.Count > 0)
-                {
-                    // Cachear con TTL un poco menor que la expiración real
-                    var cacheTTL = TimeSpan.FromSeconds(URL_EXPIRY_SECONDS - 60);
-                    await _cache.SetAsync(cacheKey, signedUrls, cacheTTL);
-
-                    company.SetCoverPhotoUrls(signedUrls);
-                }
-            });
-
-            // Procesar todas las compañías en paralelo
-            await Task.WhenAll(processingTasks);
+                await PopulatePhotoUrlsForCompaniesAsync(companiesWithPhotos);
+            }
 
             // Mapear resultado final
             var mappedResult = _mapper.Map<IEnumerable<CompanyResponseDTO>>(companies);
@@ -99,10 +65,75 @@ namespace Application.Companies.Queries.GetAllCompaniesPaged
                 PageNumber = request.Pagination.PageNumber
             };
 
-            var response = new ApiResponse<IEnumerable<CompanyResponseDTO>>(mappedResult, true, pagination);
-
-            return response;
+            return new ApiResponse<IEnumerable<CompanyResponseDTO>>(mappedResult, true, pagination);
         }
 
+        #region Helpers
+
+        /// <summary>
+        /// Obtiene las URLs firmadas para varias compañías en lote, usando cache para las que ya existen.
+        /// </summary>
+        private async Task PopulatePhotoUrlsForCompaniesAsync(List<Domain.Companies.Company> companies)
+        {
+            // Generar las keys de cache para todas las compañías
+            var cacheKeys = companies
+                .Select(c => $"v1:company:{c.Id.Value}:photos")
+                .ToList();
+
+            // Intentar obtener todas en una sola llamada a Redis
+            var cachedResults = await _cache.GetManyAsync<List<string>>(cacheKeys);
+
+            // Procesar cada compañía en paralelo
+            var tasks = companies.Select(async company =>
+            {
+                var cacheKey = $"v1:company:{company.Id.Value}:photos";
+
+                // Si estaba en cache, usarlo directamente
+                if (cachedResults.TryGetValue(cacheKey, out var cachedUrls) && cachedUrls is { Count: > 0 })
+                {
+                    company.SetCoverPhotoUrls(cachedUrls);
+                    return;
+                }
+
+                // Si no está en cache → Generar nuevas URLs firmadas
+                var signedUrls = await GenerateSignedUrlsAsync(company.CompanyPhotos);
+
+                if (signedUrls.Count > 0)
+                {
+                    // Cachear con TTL menor que la expiración real
+                    var cacheTTL = TimeSpan.FromSeconds(URL_EXPIRY_SECONDS - 60);
+                    await _cache.SetAsync(cacheKey, signedUrls, cacheTTL);
+
+                    company.SetCoverPhotoUrls(signedUrls);
+                }
+            });
+
+            await Task.WhenAll(tasks);
+        }
+
+        /// <summary>
+        /// Genera URLs firmadas para un conjunto de fotos.
+        /// </summary>
+        private async Task<List<string>> GenerateSignedUrlsAsync(IReadOnlyCollection<string> photoKeys)
+        {
+            var tasks = photoKeys.Select(async key =>
+            {
+                var urlResult = await _fileStorageService.GetFileUrlAsync(
+                    BUCKETNAME,
+                    key,
+                    URL_EXPIRY_SECONDS
+                );
+                return urlResult.IsError ? null : urlResult.Value;
+            });
+
+            var signedUrls = (await Task.WhenAll(tasks))
+                .Where(url => url != null)
+                .Cast<string>()
+                .ToList();
+
+            return signedUrls;
+        }
+
+        #endregion
     }
 }

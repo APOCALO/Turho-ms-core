@@ -1,10 +1,11 @@
 ﻿using Application.Common;
+using Application.Companies.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 
 namespace Application.Companies.Commands.CreateCompany
 {
-    public record CreateCompanyCommand : BaseResponse<Unit>
+    public record CreateCompanyCommand : BaseResponse<CompanyResponseDTO>
     {
         public Guid Id { get; init; } = Guid.NewGuid();
         public string Name { get; init; }

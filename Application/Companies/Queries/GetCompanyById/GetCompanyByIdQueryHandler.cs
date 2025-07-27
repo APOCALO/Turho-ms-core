@@ -15,11 +15,17 @@ namespace Application.Companies.Queries.GetCompanyById
         private readonly ICompanyRepository _companyRepository;
         private readonly IFileStorageService _fileStorageService;
         private readonly IRedisCacheService _cache;
-        // Bucket donde se guardan las fotos
-        const string BUCKETNAME = "companies-photos";
-        const int URL_EXPIRY_SECONDS = 3600;
 
-        public GetCompanyByIdQueryHandler(IMapper mapper, ICompanyRepository companyRepository, ILogger<GetCompanyByIdQueryHandler> logger, IFileStorageService fileStorageService, IRedisCacheService cache) : base(logger)
+        private const string BUCKETNAME = "companies-photos";
+        private const int URL_EXPIRY_SECONDS = 3600;
+
+        public GetCompanyByIdQueryHandler(
+            IMapper mapper,
+            ICompanyRepository companyRepository,
+            ILogger<GetCompanyByIdQueryHandler> logger,
+            IFileStorageService fileStorageService,
+            IRedisCacheService cache)
+            : base(logger)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _companyRepository = companyRepository ?? throw new ArgumentNullException(nameof(companyRepository));
@@ -27,64 +33,72 @@ namespace Application.Companies.Queries.GetCompanyById
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
-        protected override async Task<ErrorOr<ApiResponse<CompanyResponseDTO>>> HandleRequest(GetCompanyByIdQuery request, CancellationToken cancellationToken)
+        protected override async Task<ErrorOr<ApiResponse<CompanyResponseDTO>>> HandleRequest(
+            GetCompanyByIdQuery request,
+            CancellationToken cancellationToken)
         {
+            // Obtener empresa
             var company = await _companyRepository.GetByIdAsync(new CompanyId(request.Id), cancellationToken);
-
             if (company is null)
             {
                 return Error.NotFound("Company.NotFound", "The company with the provided Id was not found.");
             }
 
-            // Si no tiene fotos, devolvemos directo
-            if (company.CompanyPhotos == null || !company.CompanyPhotos.Any())
+            // Si no tiene fotos, devolvemos directamente
+            if (company.CompanyPhotos == null || company.CompanyPhotos.Count == 0)
             {
-                var mappedNoPhotos = _mapper.Map<CompanyResponseDTO>(company);
-                return new ApiResponse<CompanyResponseDTO>(mappedNoPhotos, true);
+                return new ApiResponse<CompanyResponseDTO>(_mapper.Map<CompanyResponseDTO>(company), true);
             }
 
-            var cacheKey = $"v1:company:{company.Id.Value}:photos";
+            // Obtener URLs firmadas (intentando cache primero)
+            var signedUrls = await GetSignedUrlsWithCacheAsync(company.Id.Value, company.CompanyPhotos);
 
-            // Intentar obtener desde cache
+            // Asignar URLs solo si hay fotos válidas
+            if (signedUrls.Count > 0)
+                company.SetCoverPhotoUrls(signedUrls);
+
+            // Mapear y devolver
+            var mappedResult = _mapper.Map<CompanyResponseDTO>(company);
+            return new ApiResponse<CompanyResponseDTO>(mappedResult, true);
+        }
+
+        #region Helpers
+
+        private async Task<List<string>> GetSignedUrlsWithCacheAsync(Guid companyId, IReadOnlyCollection<string> photoKeys)
+        {
+            var cacheKey = $"v1:company:{companyId}:photos";
+
+            // Intentar cache
             var cachedUrls = await _cache.GetAsync<List<string>>(cacheKey);
+            if (cachedUrls is { Count: > 0 })
+                return cachedUrls;
 
-            if (cachedUrls is not null && cachedUrls.Count > 0)
-            {
-                company.SetCoverPhotoUrls(cachedUrls);
-
-                var mappedCached = _mapper.Map<CompanyResponseDTO>(company);
-                return new ApiResponse<CompanyResponseDTO>(mappedCached, true);
-            }
-
-            // Si no está cacheado, generamos URLs nuevas
-            var signedUrlsTasks = company.CompanyPhotos.Select(async objectName =>
+            // Generar URLs firmadas
+            var signedUrlTasks = photoKeys.Select(async key =>
             {
                 var urlResult = await _fileStorageService.GetFileUrlAsync(
                     BUCKETNAME,
-                    objectName,
+                    key,
                     URL_EXPIRY_SECONDS
                 );
                 return urlResult.IsError ? null : urlResult.Value;
             });
 
-            var signedUrls = (await Task.WhenAll(signedUrlsTasks))
-                .Where(url => url is not null)
+            var signedUrls = (await Task.WhenAll(signedUrlTasks))
+                .Where(url => url != null)
                 .Cast<string>()
                 .ToList();
 
-            // Solo cachear si hay URLs válidas
+            // Cachear solo si hay URLs válidas
             if (signedUrls.Count > 0)
             {
-                // Cachear un poco menos que la expiración real para evitar URLs vencidas
                 var cacheTTL = TimeSpan.FromSeconds(URL_EXPIRY_SECONDS - 60);
                 await _cache.SetAsync(cacheKey, signedUrls, cacheTTL);
-
-                company.SetCoverPhotoUrls(signedUrls);
             }
 
-            var mappedResult = _mapper.Map<CompanyResponseDTO>(company);
-            return new ApiResponse<CompanyResponseDTO>(mappedResult, true);
+            return signedUrls;
         }
 
+        #endregion
     }
 }
