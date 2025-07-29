@@ -2,14 +2,14 @@
 using Application.Companies.DTOs;
 using Microsoft.AspNetCore.Http;
 
-namespace Application.Companies.Commands.CreateCompany
+namespace Application.Companies.Commands.UpdateCompany
 {
-    public record CreateCompanyCommand : BaseResponse<CompanyResponseDTO>
+    public record UpdateCompanyCommand : BaseResponse<CompanyResponseDTO>
     {
         public Guid Id { get; init; } = Guid.NewGuid();
         public string Name { get; init; }
         public string? Description { get; init; }
-        public List<IFormFile> CompanyPhostos { get; init; } = new();
+        public List<IFormFile> NewCompanyPhotos { get; init; } = new();
         public string PhoneNumber { get; init; }
         public string CountryCode { get; init; }
         public string Country { get; init; }

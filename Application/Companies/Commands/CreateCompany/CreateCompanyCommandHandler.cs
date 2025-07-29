@@ -57,7 +57,7 @@ namespace Application.Companies.Commands.CreateCompany
             if (request.CompanyPhostos?.Any() == true)
             {
                 var successfulPhotos = await UploadPhotosAsync(company.Id.Value, request.CompanyPhostos);
-                company.AddPhotos(successfulPhotos);
+                company.SetPhotos(successfulPhotos);
             }
 
             await _companyRepository.AddAsync(company, cancellationToken);

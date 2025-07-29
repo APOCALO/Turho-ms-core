@@ -91,5 +91,43 @@ namespace Infrastructure.Services
                 return Error.Failure("GetFileUrlAsync.MinioError", $"Failed to generate URL: {ex.Message}");
             }
         }
+
+        public async Task<ErrorOr<bool>> DeleteFileAsync(string bucketName, string objectName)
+        {
+            try
+            {
+                bool bucketExists = await _minioClient.BucketExistsAsync(
+                    new BucketExistsArgs().WithBucket(bucketName)
+                );
+
+                if (!bucketExists)
+                    return Error.NotFound("DeleteFileAsync.BucketNotFound", $"Bucket '{bucketName}' does not exist.");
+
+                // Verifica si el objeto existe (opcional pero recomendado)
+                try
+                {
+                    await _minioClient.StatObjectAsync(
+                        new StatObjectArgs().WithBucket(bucketName).WithObject(objectName)
+                    );
+                }
+                catch (Exception ex)
+                {
+                    return Error.NotFound("DeleteFileAsync.ObjectNotFound", $"Object '{objectName}' not found: {ex.Message}");
+                }
+
+                await _minioClient.RemoveObjectAsync(
+                    new RemoveObjectArgs()
+                        .WithBucket(bucketName)
+                        .WithObject(objectName)
+                );
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return Error.Failure("DeleteFileAsync.MinioError", $"An error occurred while deleting the file: {ex.Message}");
+            }
+        }
+
     }
 }

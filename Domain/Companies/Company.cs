@@ -56,7 +56,7 @@ namespace Domain.Companies
         public void UpdateWebsite(string? website) => Website = website;
         public void Deactivate() => IsActive = false;
         public void Activate() => IsActive = true;
-        public void AddPhotos(List<string> photos)
+        public void SetPhotos(List<string> photos)
         {
             if (photos == null || !photos.Any())
                 throw new ArgumentException("Photos cannot be null or empty.", nameof(photos));
