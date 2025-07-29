@@ -1,6 +1,7 @@
 ﻿using Application.Common;
 using Application.Companies.Commands.CreateCompany;
 using Application.Companies.Commands.DeleteCompany;
+using Application.Companies.Commands.PatchCompany;
 using Application.Companies.Commands.UpdateCompany;
 using Application.Companies.DTOs;
 using Application.Companies.Queries.GetAllCompaniesPaged;
@@ -125,28 +126,29 @@ namespace Web.Api.Controllers
         }
 
         /// <summary>
-        /// Update company partially (PATCH).
+        /// Partially updates a company.
         /// </summary>
-        /// <param name="id">Company ID to update.</param>
-        /// <param name="command">The data to update.</param>
+        /// <param name="id">The ID of the company to update.</param>
+        /// <param name="command">The partial data to update.</param>
         /// <response code="200">Company updated successfully.</response>
-        /// <response code="400">Invalid data.</response>
+        /// <response code="400">Invalid input data.</response>
         /// <response code="404">Company not found.</response>
         /// <response code="500">Internal server error.</response>
         [HttpPatch("{id:guid}")]
+        [Consumes("multipart/form-data")]
         [ProducesResponseType(typeof(ApiResponse<CompanyResponseDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Consumes("multipart/form-data")]
-        public async Task<IActionResult> PatchAsync(Guid id, [FromForm] UpdateCompanyCommand command)
+        public async Task<IActionResult> PatchAsync(Guid id, [FromForm] PatchCompanyCommand command)
         {
             if (command.Id != id)
             {
                 var errors = new List<Error>
-        {
-            Error.Validation("Company.UpdateInvalid", "The provided ID does not match the route parameter.")
-        };
+                {
+                    Error.Validation("Company.PatchInvalid", "The provided ID does not match the route parameter.")
+                };
+
                 return Problem(errors);
             }
 
@@ -157,6 +159,7 @@ namespace Web.Api.Controllers
                 errors => Problem(errors)
             );
         }
+
 
         /// <summary>
         /// Delete an existing company by its identifier.

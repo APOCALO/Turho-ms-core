@@ -1,4 +1,5 @@
 ﻿using Application.Companies.Commands.CreateCompany;
+using Application.Companies.Commands.PatchCompany;
 using Application.Companies.DTOs;
 using AutoMapper;
 using Domain.Companies;
@@ -20,6 +21,10 @@ namespace Application.Profiles
             CreateMap<Company, CompanyResponseDTO>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.Value))
                 .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber.Value));
+
+            // Mapeo de PatchCompanyCommand a Company ignoring null values
+            CreateMap<PatchCompanyCommand, Company>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         }
     }
 }
