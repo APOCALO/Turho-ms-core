@@ -34,6 +34,14 @@ app.UseHealthChecks("/api/health");
 
 app.UseHttpsRedirection();
 
+// Agregar CORS y permitir cualquier origen
+app.UseCors(corsPolicyBuilder =>
+{
+    corsPolicyBuilder.AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader();
+});
+
 app.UseAuthorization();
 
 // Add the custom exception handling middleware
@@ -43,14 +51,6 @@ app.MapControllers();
 
 Log.Information("Starting the application...");
 app.Run();
-
-// Agregar CORS y permitir cualquier origen
-app.UseCors(corsPolicyBuilder =>
-{
-    corsPolicyBuilder.AllowAnyOrigin()
-        .AllowAnyMethod()
-        .AllowAnyHeader();
-});
 
 // Make the implicit Program class public so test projects can access it
 public partial class Program { }
