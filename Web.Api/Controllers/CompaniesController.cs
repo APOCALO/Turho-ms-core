@@ -6,6 +6,7 @@ using Application.Companies.Commands.UpdateCompany;
 using Application.Companies.DTOs;
 using Application.Companies.Queries.GetAllCompaniesPaged;
 using Application.Companies.Queries.GetCompanyById;
+using AutoMapper;
 using ErrorOr;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,7 @@ namespace Web.Api.Controllers
     {
         private readonly ISender _mediator;
 
-        public CompaniesController(ISender mediator)
+        public CompaniesController(ISender mediator, IMapper mapper)
         {
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         }
