@@ -6,6 +6,7 @@ namespace Application.Companies.DTOs
     {
         public Guid Id { get; private set; }
         public string Name { get; private set; }
+        public string Slogan { get; set; }
         public string? Description { get; private set; }
         public List<string> CoverPhotoUrls { get; private set; } = new();
         public Address Address { get; private set; }

@@ -26,6 +26,9 @@ namespace Infrastructure.Persistence.Configurations
                 .IsRequired();
 
             builder.Property(c => c.Description)
+                .HasMaxLength(250);
+
+            builder.Property(c => c.Description)
                 .HasMaxLength(500);
 
             builder.Property(c => c.Website)

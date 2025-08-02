@@ -7,6 +7,7 @@ namespace Domain.Companies
     {
         public CompanyId Id { get; private set; }
         public string Name { get; private set; }
+        public string Slogan { get; set; }
         public string? Description { get; private set; }
         public List<string> CoverPhotoUrls { get; set; }
         public List<string> CompanyPhotos { get; private set; } = new();
@@ -25,6 +26,7 @@ namespace Domain.Companies
         public Company(
             CompanyId id, 
             string name, 
+            string slogan, 
             string? description, 
             List<string> coverPhotoUrls, 
             List<string> companyPhotos, 
@@ -39,6 +41,7 @@ namespace Domain.Companies
         {
             Id = id;
             Name = name;
+            Slogan = slogan;
             Description = description;
             CoverPhotoUrls = coverPhotoUrls;
             CompanyPhotos = companyPhotos;
